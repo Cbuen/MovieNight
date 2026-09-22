@@ -1,7 +1,7 @@
 import cors from 'cors';
 import express from 'express'
 import { apiTest } from './controllers/test.controller.js';
-import { createParticipant } from './controllers/participants.controller.js';
+import { createParticipant, deleteParticipant } from './controllers/participants.controller.js';
 
 const app = express();
 
@@ -31,6 +31,9 @@ app.post('/api/rooms', (req, res) => {
 
 // create a participant, pre joinning/creating movie room
 app.post('/api/participants/', createParticipant)
+
+// delete participants
+app.post('/api/participants/delete', deleteParticipant)
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);

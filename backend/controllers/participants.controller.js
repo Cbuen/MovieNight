@@ -8,9 +8,15 @@ import { pool } from '../config/db.js';
  */
 export const createParticipant = async (req, res) => {
   const displayName = req.body.displayName;
-  if (!Object.keys(displayName ?? {}).length) {
-    return res.status(400)
-    // TODO: add a res.redirect() to the user input page for creating username
+  const name = displayName?.trim();
+
+  //TODO: CHECK FOR SPACES/EMPTYNESS
+  if (
+    typeof displayName !== "string" ||
+    name.length === 0
+  ) {
+    res.status(400);
+    return res.json("Error empty or incorrect participant name")
   }
 
   try {

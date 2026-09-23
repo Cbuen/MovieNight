@@ -9,12 +9,17 @@ const apiTest = async (req, res) => {
   res.json("test success");
 };
 
+
+
 // Creates a new room row in table roomCode must be unique handled on the sql end
 /**
  * @param {import('express').Request} req 
  * @param {import('express').Response} res 
  */
 export const createRoom = async (req, res) => {
+  //TODO: implement the update to participant row/col where is_host is 1 for true IF USER IS IN FACT HOST
+  //TODO: implement the update to participant row/col where room_id is now stored as room is created
+  // TODO: DONT FORGET TO ADD THE OPPOSITES OF THE TOP TODOS TO MY DELETE ROOM AS WELL AS IN DELETE THE participant ROW WHEN ROOM IS CLOSED
   const roomCode = req.body.roomCode;
   const roomName = req.body.roomName;
   const participantId = req.body.participantId;
@@ -40,7 +45,7 @@ export const createRoom = async (req, res) => {
   }
 };
 
-// TODO: TEST THIS!!!!
+// TODO: FIX THIS AS IT DELETES SUCSESSFULLY BUT STILL RETURNS STATUS 400
 /**
  * @param {import('express').Request} req 
  * @param {import('express').Response} res 
@@ -62,8 +67,10 @@ export const deleteRoom = async (req, res) => {
   catch (error) {
     res.status(400);
     return res.json({
-      success: false,
-      message: `${error}`
+      success: false
     });
   }
 };
+
+
+// TODO: Create contorller for updated a user room_id based on participant ID also add this to my index.js routes

@@ -17,19 +17,32 @@ const apiTest = async (req, res) => {
  * @param {import('express').Response} res 
  */
 export const createRoom = async (req, res) => {
-  //TODO: implement the update to participant row/col where is_host is 1 for true IF USER IS IN FACT HOST
-  //TODO: implement the update to participant row/col where room_id is now stored as room is created
-  // TODO: DONT FORGET TO ADD THE OPPOSITES OF THE TOP TODOS TO MY DELETE ROOM AS WELL AS IN DELETE THE participant ROW WHEN ROOM IS CLOSED
+  //TODO: participant should only be able to create one room. fix this in the express route?
   const roomCode = req.body.roomCode;
   const roomName = req.body.roomName;
   const participantId = req.body.participantId;
   const submissionLimit = req.body.submissionLimit; // overall limit NOT PER PERSON
   try {
+    const [participants] = await pool.execute(
+      `SELECT * FROM participants WHERE is_host = 1 AND id = ${participantId}`
+    );
+
+    if (participants.length === 1) {
+      return res.status(409).json({
+        success: false,
+        message: "Room already exists"
+      })
+    }
 
     const [result] = await pool.execute(
       `INSERT INTO rooms (room_code, room_name, host_participant_id, submission_limit) VALUES (?, ?, ?, ?)`,
       [roomCode, roomName, participantId, submissionLimit]
     )
+
+    await pool.execute(
+      `UPDATE participants SET room_id = ${result.insertId}, is_host = 1 WHERE id = ${participantId}`
+    );
+
     res.status(200);
     return res.json({
       success: true,
@@ -45,7 +58,6 @@ export const createRoom = async (req, res) => {
   }
 };
 
-// TODO: FIX THIS AS IT DELETES SUCSESSFULLY BUT STILL RETURNS STATUS 400
 /**
  * @param {import('express').Request} req 
  * @param {import('express').Response} res 
@@ -54,10 +66,19 @@ export const deleteRoom = async (req, res) => {
   const roomId = req.body.id;
 
   try {
-
-    const [result] = pool.execute(
+    const [result] = await pool.execute(
       `DELETE FROM rooms WHERE id = ${roomId}`
     );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Room does not exist"
+      })
+    }
+
+
+
     res.status(200);
     return res.json({
       success: true,
@@ -73,4 +94,3 @@ export const deleteRoom = async (req, res) => {
 };
 
 
-// TODO: Create contorller for updated a user room_id based on participant ID also add this to my index.js routes

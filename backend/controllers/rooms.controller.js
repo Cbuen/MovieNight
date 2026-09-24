@@ -17,12 +17,13 @@ const apiTest = async (req, res) => {
  * @param {import('express').Response} res 
  */
 export const createRoom = async (req, res) => {
-  //TODO: participant should only be able to create one room. fix this in the express route?
+
   const roomCode = req.body.roomCode;
   const roomName = req.body.roomName;
   const participantId = req.body.participantId;
   const submissionLimit = req.body.submissionLimit; // overall limit NOT PER PERSON
   try {
+    // Checks to see if our participant is already a host and throws 409 status 
     const [participants] = await pool.execute(
       `SELECT * FROM participants WHERE is_host = 1 AND id = ${participantId}`
     );
@@ -34,11 +35,13 @@ export const createRoom = async (req, res) => {
       })
     }
 
+    // creates room inlcuding FKs for host id
     const [result] = await pool.execute(
       `INSERT INTO rooms (room_code, room_name, host_participant_id, submission_limit) VALUES (?, ?, ?, ?)`,
       [roomCode, roomName, participantId, submissionLimit]
     )
 
+    // updates the host participant table row to show host status and update its room ID
     await pool.execute(
       `UPDATE participants SET room_id = ${result.insertId}, is_host = 1 WHERE id = ${participantId}`
     );
@@ -66,10 +69,12 @@ export const deleteRoom = async (req, res) => {
   const roomId = req.body.id;
 
   try {
+
     const [result] = await pool.execute(
       `DELETE FROM rooms WHERE id = ${roomId}`
     );
 
+    // check to see if the room requested to delete exists in table before attempt
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
@@ -93,4 +98,4 @@ export const deleteRoom = async (req, res) => {
   }
 };
 
-
+// TODO: Create function for non-host participant to join a room via invite code only

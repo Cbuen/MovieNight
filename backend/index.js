@@ -1,8 +1,11 @@
 import cors from 'cors';
 import express from 'express'
+import session from 'express-session';
+import { pool } from './config/db.js';
 import { apiTest } from './controllers/test.controller.js';
 import { createParticipant, deleteParticipant } from './controllers/participants.controller.js';
-import { createRoom, deleteRoom } from './controllers/rooms.controller.js';
+import { createRoom, deleteRoom, joinRoom } from './controllers/rooms.controller.js';
+import MySqlStoreFactory from 'express-mysql-session';
 
 const app = express();
 
@@ -15,6 +18,23 @@ app.use(cors({
 
 const port = 3000;
 
+// initalize the session for mysql2 pool
+const MySQLStore = MySqlStoreFactory(session);
+const sessionStore = new MySQLStore({}, pool);
+
+// config middleware with app
+app.use(session({
+  key: 'room_session',
+  secret: 'asbucpdeer123!',
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 2, // 2 hours
+    httpOnly: true,             // Keeps cookie secure from frontend JS hacking
+    secure: false               // Set to true later if using HTTPS in production
+  }
+}));
 
 // hello world route
 app.get('/', (req, res) => {
@@ -33,6 +53,8 @@ app.post('/api/rooms', (req, res) => {
 app.post('/api/rooms/create', createRoom);
 
 app.post('/api/rooms/delete', deleteRoom);
+
+app.post(`/api/rooms/join`, joinRoom);
 
 
 // create a participant, pre joinning/creating movie room

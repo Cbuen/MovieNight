@@ -25,6 +25,7 @@ export const createParticipant = async (req, res) => {
       [displayName]
     );
     console.log(result);
+    req.session.participantId = result.insertId;
     return res.json(`${displayName} has been created!`);
 
   }

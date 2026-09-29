@@ -6,6 +6,7 @@ import { apiTest } from './controllers/test.controller.js';
 import { createParticipant, deleteParticipant } from './controllers/participants.controller.js';
 import { createRoom, deleteRoom, joinRoom } from './controllers/rooms.controller.js';
 import MySqlStoreFactory from 'express-mysql-session';
+import { createMovieSubmission } from './controllers/movie_submissions.controller.js';
 
 const app = express();
 
@@ -62,6 +63,10 @@ app.post('/api/participants/', createParticipant);
 
 // delete participants
 app.post('/api/participants/delete', deleteParticipant);
+
+// Movie Submission routes
+app.post('/api/rooms/movie/submission', createMovieSubmission);
+
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);

@@ -122,6 +122,7 @@ export const joinRoom = async (req, res) => {
         messgae: "Room Code or Participant ID is incorrect"
       });
     } else {
+      req.session.roomId = room[0].id;
       return res.status(200).json({
         success: true,
         message: `You have now joined Room: ${room[0].room_name}`

@@ -24,8 +24,8 @@ export const createParticipant = async (req, res) => {
       'INSERT INTO participants (display_name) VALUES (?)',
       [displayName]
     );
-    console.log(result);
     req.session.participantId = result.insertId;
+    req.session.isHost = false;
     return res.json(`${displayName} has been created!`);
 
   }

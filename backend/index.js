@@ -7,6 +7,7 @@ import { createParticipant, deleteParticipant } from './controllers/participants
 import { createRoom, deleteRoom, joinRoom } from './controllers/rooms.controller.js';
 import MySqlStoreFactory from 'express-mysql-session';
 import { createMovieSubmission } from './controllers/movie_submissions.controller.js';
+import { startVoting } from './controllers/votes.controller.js';
 
 const app = express();
 
@@ -64,8 +65,11 @@ app.post('/api/participants/', createParticipant);
 // delete participants
 app.post('/api/participants/delete', deleteParticipant);
 
-// Movie Submission routes
+// movie Submission routes
 app.post('/api/rooms/movie/submission', createMovieSubmission);
+
+// start voting session
+app.post('/api/rooms/start/voting', startVoting);
 
 
 app.listen(port, () => {

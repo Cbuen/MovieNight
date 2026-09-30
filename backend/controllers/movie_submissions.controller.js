@@ -53,7 +53,7 @@ export const createMovieSubmission = async (req, res) => {
     // console.log(result);
     return res.status(200).json({
       success: true,
-      result: result,
+      result: result[0],
       response: response.data
     })
   }
@@ -65,3 +65,6 @@ export const createMovieSubmission = async (req, res) => {
     })
   }
 };
+
+
+// TODO: Add controller function for removeing row if needed

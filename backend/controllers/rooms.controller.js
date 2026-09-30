@@ -46,6 +46,8 @@ export const createRoom = async (req, res) => {
       `UPDATE participants SET room_id = ${result.insertId}, is_host = 1 WHERE id = ${participantId}`
     );
 
+    req.session.isHost = true;
+
     res.status(200);
     return res.json({
       success: true,
@@ -135,3 +137,6 @@ export const joinRoom = async (req, res) => {
     });
   }
 }
+
+// TODO: Create closeRoom controller function (can be used to train and build data)
+// TODO: Create deleteRoom controller function (can be used to clean schema tables)

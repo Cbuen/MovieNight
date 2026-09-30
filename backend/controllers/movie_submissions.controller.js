@@ -13,10 +13,9 @@ const API_BASE = 'https://api.themoviedb.org'
  */
 // TODO: First make it work, Second account for duplicates no double submissions, sql asks for unique tmdb id
 // TODO: Ensure user can only submit to the room they are joined in
-//
 export const createMovieSubmission = async (req, res) => {
 
-  // TODO: IMplement check that user is within submission count limit per user
+  // To check that participant is within submission limits of room
   const [submissions] = await pool.execute(
     `SELECT COUNT(*) AS count FROM movie_submissions WHERE participant_id = ${req.session.participantId}`
   )
@@ -25,8 +24,7 @@ export const createMovieSubmission = async (req, res) => {
     `SELECT submission_limit FROM rooms WHERE id = ${req.session.roomId}`
   );
 
-  // TODO: THIS CHECK DOES NOT WORK AND STILL WILL INSERT BEYOND LIMIT
-  if (submissions[0].count >= roomSubmissionLimit[0].submisssion_limit) {
+  if (submissions[0].count >= roomSubmissionLimit[0].submission_limit) {
     return res.status(404).json({
       success: false,
       error: "Submission Limit Exceeded"

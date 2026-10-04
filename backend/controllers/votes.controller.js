@@ -34,7 +34,18 @@ export const startVoting = async (req, res) => {
  * @param {import('express').Response} res 
  */
 export const submitVote = async (req, res) => {
+
   // TODO: Implement a check if voting session has started
+  const [room] = pool.execute(
+    `SELECT room_status FROM rooms WHERE id = ${req.session.roomId}`
+  );
+
+  if (room.room_status === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "session not started"
+    })
+  }
 
   // enforces one vote per participant
   const [votes] = await pool.execute(
@@ -67,5 +78,40 @@ export const submitVote = async (req, res) => {
     })
   }
 
+}
+
+/**
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res 
+ */
+export const voteResults = async (req, res) => {
+  // TODO: create a querey to return id of the top movie to query movie_submission table or use a join research!
+  // // MAKE SURE ITS ALSO FOR THE CORRECT ROOM NOT BASED ON ALL THE VOTES IF POSSIBLE
+  try {
+    const [result] = pool.execute(
+      `SELECT
+    ms.*,
+    COUNT(v.id) AS vote_count
+    FROM votes AS v
+    JOIN movie_submissions AS ms
+    ON v.movie_submission_id = ms.id
+    WHERE v.room_id = ?
+    GROUP BY ms.id
+    ORDER BY vote_count DESC
+    LIMIT 1`, [req.session.roomId]
+    )
+
+    return res.status(200).json({
+      success: true,
+      result: result[0]
+    })
+
+  }
+  catch (error) {
+    return res.status(400).json({
+      success: false,
+      error: error
+    })
+  }
 }
 

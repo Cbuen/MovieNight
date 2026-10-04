@@ -7,6 +7,7 @@ import { pool } from '../config/db.js';
  * @param {import('express').Response} res 
  */
 export const createParticipant = async (req, res) => {
+  req.session.regenerate();
   const displayName = req.body.displayName;
   const name = displayName?.trim();
 

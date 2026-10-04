@@ -7,7 +7,7 @@ import { createParticipant, deleteParticipant } from './controllers/participants
 import { createRoom, deleteRoom, joinRoom } from './controllers/rooms.controller.js';
 import MySqlStoreFactory from 'express-mysql-session';
 import { createMovieSubmission } from './controllers/movie_submissions.controller.js';
-import { startVoting, submitVote } from './controllers/votes.controller.js';
+import { startVoting, submitVote, voteResults } from './controllers/votes.controller.js';
 
 const app = express();
 
@@ -74,6 +74,8 @@ app.post('/api/rooms/start/voting', startVoting);
 // submit vote
 app.post('/api/rooms/submit/vote', submitVote);
 
+// get voting results
+app.post('/api/rooms/voting/results', voteResults);
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);

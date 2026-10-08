@@ -1,81 +1,154 @@
 import { pool } from "../config/db.js";
 
-
+// TODO: Works but throws error
 /**
  * @param {import('express').Request} req 
  * @param {import('express').Response} res 
  */
 export const startVoting = async (req, res) => {
   if (req.session.isHost === true) {
-
-    const result = await pool.execute(
-      `UPDATE rooms SET voting_status = 1 WHERE host_participant_id = ${req.session.participantId}`
-    )
-    return res.status(200).json({
-      success: true,
-      message: result[0]
-    })
+    try {
+      const [result] = await pool.execute(
+        'UPDATE rooms SET voting_status = 1 WHERE host_participant_id = ?',
+        [req.session.participantId]
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Voting has started",
+        result: result
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
   }
 
   else {
-    return res.status(400).json({
-      success: false
-    })
+    return res.status(403).json({
+      success: false,
+      message: "Only the host can start voting"
+    });
   }
 }
 
-// TODO: Create submitVote controller function (used to submit a movie vote)
-// // each user is allowed one vote
-// // later implement host set vote rules such as 3 votes each for top 3, top 5, etc
-// // we will handle a pre request voting in the frontend via react state hooks button "commit vote"
-// // route used only when user is commiting vote meaning no changes
+/**
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res 
+ */
+export const stopVoting = async (req, res) => {
+  try {
+    // Check if voting session already completed
+    const [[room]] = await pool.execute(
+      `SELECT * FROM rooms WHERE id = ?`, [req.session.roomId]
+    );
+
+    if (room.voting_status == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "room is already completed"
+      });
+    }
+
+
+    if (req.session.isHost === true) {
+      const [result] = await pool.execute(
+        `
+        UPDATE rooms
+        SET voting_status = 0
+        WHERE host_participant_id = ?
+        `,
+        [req.session.participantId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Voting could not be stopped",
+          result
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Voting has stopped",
+        result
+      });
+    }
+
+    return res.status(403).json({
+      success: false,
+      message: "Only the host can stop voting"
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 /**
  * @param {import('express').Request} req 
  * @param {import('express').Response} res 
  */
 export const submitVote = async (req, res) => {
-
-  // TODO: Implement a check if voting session has started
-  const [room] = pool.execute(
-    `SELECT room_status FROM rooms WHERE id = ${req.session.roomId}`
-  );
-
-  if (room.room_status === 0) {
-    return res.status(400).json({
-      success: false,
-      message: "session not started"
-    })
-  }
-
-  // enforces one vote per participant
-  const [votes] = await pool.execute(
-    `SELECT COUNT(*) AS count FROM votes WHERE participant_id = ${req.session.participantId}`
-  )
-
-  if (votes[0].count > 0) {
-    return res.status(400).json({
-      success: false,
-      message: "participant already vote"
-    })
-  }
-
-  // insert row into database 
-  const movie_id = req.body.movie_id;
   try {
-    const [result] = await pool.execute(
-      `INSERT INTO votes (room_id, participant_id, movie_submission_id) VALUES (?, ?, ?)`, [req.session.roomId, req.session.participantId, movie_id]
+    const [room] = await pool.execute(
+      'SELECT voting_status FROM rooms WHERE id = ?', [req.session.roomId]
     );
 
-    return res.status(200).json({
-      success: true,
-      message: result[0]
-    })
-  }
-  catch (error) {
-    return res.status(400).json({
+    if (!room[0] || room[0].voting_status === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Voting not active"
+      });
+    }
+
+    // enforces one vote per participant
+    const [votes] = await pool.execute(
+      'SELECT COUNT(*) AS count FROM votes WHERE participant_id = ? AND room_id = ?',
+      [req.session.participantId, req.session.roomId]
+    );
+
+    if (votes[0].count > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Participant has already voted"
+      });
+    }
+
+    // insert row into database
+    const movie_id = req.body.movie_id;
+    try {
+      const [result] = await pool.execute(
+        'INSERT INTO votes (room_id, participant_id, movie_submission_id) VALUES (?, ?, ?)',
+        [req.session.roomId, req.session.participantId, movie_id]
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Vote submitted",
+        result: result
+      });
+    }
+    catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
       success: false,
-      message: error
-    })
+      message: error.message
+    });
   }
 
 }
@@ -85,33 +158,31 @@ export const submitVote = async (req, res) => {
  * @param {import('express').Response} res 
  */
 export const voteResults = async (req, res) => {
-  // TODO: create a querey to return id of the top movie to query movie_submission table or use a join research!
-  // // MAKE SURE ITS ALSO FOR THE CORRECT ROOM NOT BASED ON ALL THE VOTES IF POSSIBLE
   try {
-    const [result] = pool.execute(
+    const [result] = await pool.execute(
       `SELECT
-    ms.*,
-    COUNT(v.id) AS vote_count
-    FROM votes AS v
-    JOIN movie_submissions AS ms
-    ON v.movie_submission_id = ms.id
-    WHERE v.room_id = ?
-    GROUP BY ms.id
-    ORDER BY vote_count DESC
-    LIMIT 1`, [req.session.roomId]
-    )
+         ms.*,
+         COUNT(v.id) AS vote_count
+       FROM votes AS v
+       JOIN movie_submissions AS ms
+       ON v.movie_submission_id = ms.id
+       WHERE v.room_id = ?
+       GROUP BY ms.id
+       ORDER BY vote_count DESC
+       LIMIT 1`, [req.session.roomId]
+    );
 
     return res.status(200).json({
       success: true,
       result: result[0]
-    })
-
+    });
   }
   catch (error) {
+    console.error(error);
     return res.status(400).json({
       success: false,
-      error: error
-    })
+      error: error.message
+    });
   }
 }
 

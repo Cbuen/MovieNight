@@ -93,9 +93,10 @@ export const createMovieSubmission = async (req, res) => {
         title,
         poster_url,
         description,
-        runtime
+        runtime,
+        rating
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         roomId,
@@ -104,7 +105,8 @@ export const createMovieSubmission = async (req, res) => {
         response.data.original_title,
         response.data.poster_path,
         response.data.overview,
-        response.data.runtime
+        response.data.runtime,
+        response.data.vote_average
       ]
     );
 

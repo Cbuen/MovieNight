@@ -7,34 +7,66 @@ import { pool } from '../config/db.js';
  * @param {import('express').Response} res 
  */
 export const createParticipant = async (req, res) => {
-  req.session.regenerate();
   const displayName = req.body.displayName;
   const name = displayName?.trim();
 
-  //TODO: CHECK FOR SPACES/EMPTYNESS
   if (
     typeof displayName !== "string" ||
     name.length === 0
   ) {
-    res.status(400);
-    return res.json("Error empty or incorrect participant name")
+    return res.status(400).json({
+      success: false,
+      message: "Display name is required"
+    });
   }
 
   try {
     const [result] = await pool.execute(
       'INSERT INTO participants (display_name) VALUES (?)',
-      [displayName]
+      [name]
     );
-    req.session.participantId = result.insertId;
-    req.session.isHost = false;
-    return res.json(`${displayName} has been created!`);
 
+    req.session.regenerate((err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Session error"
+        });
+      }
+      req.session.participantId = result.insertId;
+      req.session.isHost = false;
+      req.session.displayName = name;
+      res.status(201).json({
+        success: true,
+        message: `${name} has been created!`,
+        participantId: result.insertId
+      });
+    });
   }
   catch (error) {
-    res.json({
-      error: error
-    })
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
+};
+
+
+export const getSession = async (req, res) => {
+  if (!req.session.participantId) {
+    return res.status(401).json({
+      success: false,
+      message: "No active session"
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    participantId: req.session.participantId,
+    displayName: req.session.displayName,
+    isHost: req.session.isHost === true,
+    roomId: req.session.roomId
+  });
 };
 
 
@@ -54,7 +86,8 @@ export const deleteParticipant = async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      `DELETE FROM participants WHERE id = ${participantID}`
+      'DELETE FROM participants WHERE id = ?',
+      [participantID]
     );
     if (result.affectedRows == 0) {
       return res.json({

@@ -1,4 +1,4 @@
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://movie-night-lake-three.vercel.app'
 
 class ApiError extends Error {
   constructor(message, status, data) {
@@ -20,9 +20,11 @@ async function request(path, method = 'GET', body = null) {
     options.body = JSON.stringify(body)
   }
 
+  const url = `${API_BASE}${path.startsWith('/api') ? path : (path.startsWith('/') ? path : `/${path}`)}`
+
   let response
   try {
-    response = await fetch(`${API_BASE}${path}`, options)
+    response = await fetch(url, options)
   } catch {
     throw new ApiError('Network error — check that the backend is running.', 0)
   }
@@ -57,34 +59,34 @@ export { ApiError }
 
 export const api = {
   createParticipant: (displayName) =>
-    request('/participants/', 'POST', { displayName }),
+    request('/api/participants/', 'POST', { displayName }),
 
   createRoom: (roomCode, roomName, submissionLimit) =>
-    request('/rooms/create', 'POST', { roomCode, roomName, submissionLimit }),
+    request('/api/rooms/create', 'POST', { roomCode, roomName, submissionLimit }),
 
   joinRoom: (roomCode) =>
-    request('/rooms/join', 'POST', { roomCode: String(roomCode) }),
+    request('/api/rooms/join', 'POST', { roomCode: String(roomCode) }),
 
   submitMovie: (tmdbUrl) =>
-    request('/rooms/movie/submission', 'POST', { tmdbUrl }),
+    request('/api/rooms/movie/submission', 'POST', { tmdbUrl }),
 
   startVoting: () =>
-    request('/rooms/start/voting', 'POST'),
+    request('/api/rooms/start/voting', 'POST'),
 
   stopVoting: () =>
-    request('/rooms/voting/stop', 'POST'),
+    request('/api/rooms/voting/stop', 'POST'),
 
   submitVote: (movieId) =>
-    request('/rooms/submit/vote', 'POST', { movie_id: movieId }),
+    request('/api/rooms/submit/vote', 'POST', { movie_id: movieId }),
 
   getVoteResults: () =>
-    request('/rooms/voting/results', 'POST'),
+    request('/api/rooms/voting/results', 'POST'),
 
   getRoom: () =>
-    request('/room', 'GET'),
+    request('/api/room', 'GET'),
 
   getSession: () =>
-    request('/session', 'GET'),
+    request('/api/session', 'GET'),
 }
 
 export const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'

@@ -1,10 +1,6 @@
 -- MovieNight database schema
--- Run this once to set up the database tables
+-- Run this once to set up the database tables on your MySQL instance
 
-CREATE DATABASE IF NOT EXISTS movieNight;
-USE movieNight;
-
--- Required by express-mysql-session for session storage
 CREATE TABLE IF NOT EXISTS `sessions` (
   `session_id` varchar(128) COLLATE utf8mb4_bin NOT NULL,
   `expires` int(11) unsigned NOT NULL,
@@ -12,7 +8,6 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   PRIMARY KEY (`session_id`)
 ) ENGINE=InnoDB;
 
--- Participants: each person who starts a session
 CREATE TABLE IF NOT EXISTS participants (
   id INT AUTO_INCREMENT PRIMARY KEY,
   display_name VARCHAR(255) NOT NULL,
@@ -20,7 +15,6 @@ CREATE TABLE IF NOT EXISTS participants (
   is_host TINYINT(1) DEFAULT 0
 );
 
--- Rooms: created by a host participant
 CREATE TABLE IF NOT EXISTS rooms (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_code VARCHAR(255) NOT NULL UNIQUE,
@@ -32,7 +26,6 @@ CREATE TABLE IF NOT EXISTS rooms (
   FOREIGN KEY (host_participant_id) REFERENCES participants(id) ON DELETE CASCADE
 );
 
--- Movie submissions: TMDB movies submitted by participants
 CREATE TABLE IF NOT EXISTS movie_submissions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_id INT NOT NULL,
@@ -48,7 +41,6 @@ CREATE TABLE IF NOT EXISTS movie_submissions (
   UNIQUE KEY unique_movie_per_room (room_id, tmdb_movie_id)
 );
 
--- Votes: one vote per participant per room
 CREATE TABLE IF NOT EXISTS votes (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_id INT NOT NULL,

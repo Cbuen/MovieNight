@@ -14,7 +14,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "https://movienight-frontend-ev4zusu5g-cbuens-projects.vercel.app",
+  origin: "https://movienight-frontend.vercel.app",
   credentials: true
 }));
 

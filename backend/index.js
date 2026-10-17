@@ -13,10 +13,13 @@ import { startVoting, stopVoting, submitVote, voteResults } from './controllers/
 const app = express();
 
 app.use(express.json());
+
 app.use(cors({
   origin: "https://movienight-frontend.vercel.app",
   credentials: true
 }));
+
+app.set("trust proxy", 1);
 
 const port = process.env.PORT || 3000;
 
@@ -24,16 +27,16 @@ const MySQLStore = MySqlStoreFactory(session);
 const sessionStore = new MySQLStore({}, pool);
 
 app.use(session({
-  key: 'room_session',
-  secret: process.env.SESSION_SECRET || 'asbucpdeer123!',
+  key: "room_session",
+  secret: process.env.SESSION_SECRET,
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 2,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    secure: true,
+    sameSite: "none"
   }
 }));
 

@@ -448,6 +448,32 @@
   font-size: 14px;
 }
 
+.actions-section {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.abandon-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.abandon-btn:hover {
+  background: #b91c1c;
+}
+
+.abandon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .movie-preview {

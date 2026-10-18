@@ -20,6 +20,7 @@ export default function RoomDashboard({
   onStartVoting,
   onStopVoting,
   onVote,
+  onAbandon,
 }) {
   const votingActive = room?.votingStatus === 1
   const votingComplete = votingStarted && !votingActive
@@ -63,6 +64,24 @@ export default function RoomDashboard({
           </div>
         )}
       </section>
+
+      {participant && (
+        <section className="actions-section">
+          <button
+            type="button"
+            className="abandon-btn"
+            onClick={() => {
+              const confirmed = window.confirm("Are you sure you want to leave this session?");
+              if (confirmed) {
+                onAbandon?.();
+              }
+            }}
+            disabled={loading}
+          >
+            Abandon Session
+          </button>
+        </section>
+      )}
 
       {!votingActive && !votingComplete && (
         <MovieSubmission

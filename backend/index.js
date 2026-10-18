@@ -4,7 +4,7 @@ import express from 'express'
 import session from 'express-session';
 import { pool } from './config/db.js';
 import { apiTest } from './controllers/test.controller.js';
-import { createParticipant, deleteParticipant, getSession } from './controllers/participants.controller.js';
+import { createParticipant, deleteParticipant, getSession, abandonSession } from './controllers/participants.controller.js';
 import { createRoom, deleteRoom, joinRoom, getRoom } from './controllers/rooms.controller.js';
 import MySqlStoreFactory from 'express-mysql-session';
 import { createMovieSubmission } from './controllers/movie_submissions.controller.js';
@@ -57,6 +57,7 @@ app.get('/api/room', getRoom);
 app.post('/api/participants/', createParticipant);
 app.get('/api/session', getSession);
 app.post('/api/participants/delete', deleteParticipant);
+app.post('/api/participants/abandon', abandonSession);
 app.post('/api/rooms/movie/submission', createMovieSubmission);
 app.post('/api/rooms/start/voting', startVoting);
 app.post('/api/rooms/submit/vote', submitVote);

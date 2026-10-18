@@ -234,6 +234,31 @@ function App() {
     }
   }
 
+  const handleAbandonSession = async () => {
+    setLoading(true)
+    clearMessages()
+    try {
+      const data = await api.abandonSession()
+      if (data.success) {
+        setParticipant(null)
+        setRoom(null)
+        setSubmissions([])
+        setIsHost(false)
+        setHasVoted(false)
+        setVotingStarted(false)
+        setWinner(null)
+        setMessage('')
+        setView('setup')
+      } else if (data.message) {
+        setError(data.message)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -290,6 +315,7 @@ function App() {
             onStartVoting={handleStartVoting}
             onStopVoting={handleStopVoting}
             onVote={handleVote}
+            onAbandon={handleAbandonSession}
           />
         )}
       </main>

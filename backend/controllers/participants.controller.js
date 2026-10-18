@@ -110,3 +110,43 @@ export const deleteParticipant = async (req, res) => {
 
   return res
 };
+
+export const abandonSession = async (req, res) => {
+  const participantId = req.session?.participantId;
+
+  if (!participantId) {
+    return res.status(401).json({
+      success: false,
+      message: "No active session"
+    });
+  }
+
+  try {
+    // Delete only the currently authenticated participant
+    await pool.execute(
+      'DELETE FROM participants WHERE id = ?',
+      [participantId]
+    );
+
+    // Destroy the current Express session and clear the session cookie
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Session error"
+        });
+      }
+      res.clearCookie("room_session");
+      return res.status(200).json({
+        success: true,
+        message: "Session abandoned successfully"
+      });
+    });
+  }
+  catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

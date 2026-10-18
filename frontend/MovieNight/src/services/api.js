@@ -87,6 +87,9 @@ export const api = {
 
   getSession: () =>
     request('/api/session', 'GET'),
+
+  abandonSession: () =>
+    request('/api/participants/abandon', 'POST'),
 }
 
 export const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'

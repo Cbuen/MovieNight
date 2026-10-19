@@ -6,6 +6,26 @@ A host can create a temporary movie room and share the room code with participan
 
 The application is designed around short-lived group sessions, so users can participate without creating permanent accounts. This makes MovieNight useful for movie nights, social events, classrooms, team activities, and other situations where a group needs a simple and fair way to make a decision.
 
+## Current Project Status
+
+MovieNight is fully functional in the local development environment.
+
+The project is currently being migrated from a local MySQL setup to a production environment using Aiven Cloud MySQL and Vercel. The frontend and backend have been deployed, and remaining work is focused on production configuration, session persistence, SSL certificates, mobile browser compatibility, and resolving deployment-specific bugs.
+
+The application’s core functionality is complete locally, including:
+
+- Room creation and joining
+- Participant sessions
+- TMDB movie submissions
+- Submission limits
+- Voting workflows
+- Vote result aggregation
+- Session abandonment
+- Relational database relationships and cascading deletes
+
+Production deployment and testing are still in progress.
+
+
 ## Screenshots
 
 <!-- Replace these image URLs with your own GitHub image URLs -->

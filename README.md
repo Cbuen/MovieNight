@@ -1,3 +1,11 @@
+## Description
+
+MovieNight is a collaborative movie-selection platform built for groups of friends, families, classmates, or coworkers who want to decide what to watch without going through a long group discussion.
+
+A host can create a temporary movie room and share the room code with participants. Each participant can submit movie suggestions using TMDB links, allowing the application to automatically retrieve movie details such as the title, poster, description, rating, and runtime. Once submissions are complete, participants vote on the available movies and the highest-ranked movie is selected.
+
+The application is designed around short-lived group sessions, so users can participate without creating permanent accounts. This makes MovieNight useful for movie nights, social events, classrooms, team activities, and other situations where a group needs a simple and fair way to make a decision.
+
 ## Screenshots
 
 <!-- Replace these image URLs with your own GitHub image URLs -->

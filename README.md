@@ -18,16 +18,17 @@ The application is designed around short-lived group sessions, so users can part
             padding: 10px;">
 
   <img
-    alt="MovieNight room creation screen"
-    src="YOUR_SCREENSHOT_URL"
+    alt="Movie Night welcome screen"
+    src="https://github.com/user-attachments/assets/379a9284-0aa4-4070-abfe-1db4f5dbc7c7"
     style="width: 100%; border-radius: 8px;"
   />
 
   <img
-    alt="MovieNight room joining screen"
-    src="YOUR_SCREENSHOT_URL"
+    alt="MovieNight create and or join rom"
+    src="https://github.com/user-attachments/assets/e832065b-0dfc-4253-b1d1-335abd618ddf"
     style="width: 100%; border-radius: 8px;"
   />
+
 
   <img
     alt="MovieNight movie submission screen"
